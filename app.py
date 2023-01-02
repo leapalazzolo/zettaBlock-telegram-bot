@@ -35,15 +35,19 @@ def send_welcome(message):
 @bot.message_handler(commands=['ens'])
 def check_ens(message):
     ens = message.text.split()[1]
+    print(f"Checking {ens}")
     if not bool(re.match('^[a-zA-Z0-9]+$', ens)):
         bot.reply_to(message, "Invalid ENS. Use alphanumeric characters.")
+        print("Invalid ENS")
         return
     query = template.substitute(ens=ens)
     response = requests.post(API_URL, json={'query': query}, headers=headers)
     if response.status_code != 200:
+        print("Error from zettablock", response.status_code)
         bot.reply_to(message, "We've an error. Try later.")
         return
     d = json.loads(response.text)['data']['record']
+    print(f"Available {d['owner']}")
     m = "Available!" if d['owner'] is None else f"Owned by {d['owner']}"
     bot.reply_to(message, m)
 
